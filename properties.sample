@@ -1,0 +1,36 @@
+[{
+        "hostname": "your server name here",
+        "friendly_name": "something useful to you",
+        "environment": "Preproduction",
+        "application_list": [{
+                "friendly_name": "Chrome Browser",
+                "process_name": "chrome"
+            }, {
+                "friendly_name": "Firefox Browser",
+                "process_name": "firefox"
+            }
+        ],
+		"memory_alert": 80,
+		"swap_alert": 60,
+        "filesystems": [{
+                "mount_location": "/opt",
+                "limit": 80,
+				"type": "%"
+            }, {
+                "mount_location": "/tmp",
+                "limit": 50,
+				"type": "%"
+            }, {
+                "mount_location": "/var",
+                "limit": 65,
+				"type": "%"
+            }
+        ],
+		"files": [{
+                "location": "/var/log/sys.log",
+                "limit": 10,
+				"type": "Mb"
+            }
+        ]
+    }
+]
