@@ -3,6 +3,7 @@ from Server import Server
 class Server_Report:
 
     server:Server = None
+    format = "%d/%m/%Y %H:%M:%S"
 
     def __init__(self, server:Server):
         self.server = server
@@ -13,6 +14,7 @@ class Server_Report:
         self.server.check_applications()
         self.server.check_filesystems()
         self.server.check_files()
+        self.server.check_containers()
 
     def humanbytes(self, B):
         """Return the given bytes as a human friendly KB, MB, GB, or TB string."""
@@ -34,27 +36,20 @@ class Server_Report:
             return '{0:.2f} TB'.format(B / TB)
 
     def get_html_report(self):
-        report  = f"""<div class="pure-g">
-                        <div class="pure-u-1-3"><p></p></div>
-                        <div class="pure-u-1-3"><p></p></div>
-                        <div class="pure-u-1-3"><p></p></div>
-                    </div>
-                    <div class="pure-g">
-                        <div class="pure-u-1-3"><p>Date: {self.server.analysis_date}</p></div>
-                        <div class="pure-u-1-3"><p>RAM: {self.server.memory}</p></div>
-                        <div class="pure-u-1-3"><p>SWAP: {self.server.swap}</p></div>
-                    </div>"""
-
+        """Returns a HTML report from a Server class
+        :return: string or None, HTML stream
+        """
         report = f"""<table align="center" border="1px solid #0079EF" cellpadding="0"
 							   cellspacing="0" class="col-550" width="550">
 							<tbody>
 								<tr>
 									<td align="center" style="background-color: white;height: 50px;color:#0079EF;">
-										<p>
-											<span style="font-weight:bold;">{self.server.friendly_name} &nbsp; [{self.server.environment}]</span><br/>
-											Hostname: &nbsp; {self.server.hostname} <br/>
-											Report date:  &nbsp; {self.server.analysis_date}
-										</p>
+										<table style="width:80%">
+											<tr><td>Hostname</td><td align="center"><span style="font-weight:bold;">{self.server.hostname}</span></td></tr>
+                                            <tr><td>Environment</td><td align="center"><span style="font-weight:bold;">{self.server.friendly_name} - {self.server.environment}</span></td></tr>
+											<tr><td>Report date:</td><td align="center">{self.server.analysis_date.strftime(self.format)}</td></tr>
+                                            <tr><td>Status:</td><td align="center">{'<span style="font-weight:bold;color:red">ALARM!</span>' if self.server.alarm else '<span style="font-weight:bold;color:green">Fine</span>'}</td></tr>
+										</table>
 									</td>
 								</tr>
 								<tr>
@@ -71,43 +66,76 @@ class Server_Report:
 												<td><span style="font-weight:bold;color:{"red" if self.server.swap["alarm"] else "green"}">{self.server.swap["value"]}%</span></label></td>
 												<td align="center"><progress value="{self.server.swap["value"]}" max="100" style="width:300px;height:40px"></progress></td>
 											</tr>
-										</table>
-										
-										<h3>Application check</h3>
-										<table style="width:75%">"""
+										</table>"""
 
-        for app in self.server.application_list:
-            report += f"""											<tr>
-												<td align="left">{app["friendly_name"]}</td>
-												<td><span style="font-weight:bold;color:{"green" if app["found"] else "red"}">{"Present" if app["found"] else "Not present"}</span></td>
-											</tr>"""
-
-        report += f"""										</table>
-										
-										<h3>Filesystem status</h3>
-										<table style="width:100%">"""
 		
-        for fs in self.server.filesystems:
-            report += f"""									<tr>
-												<td align="left"><label>{fs["mount_location"]}</td>
-												<td><span style="font-weight:bold;color:{"red" if fs["alarm"] else "green"}">{fs["found"]}</span></label></td>
-												<td align="center"><progress value="{fs["found"]}" max="100" style="width:300px;height:40px"></progress></td>
-											</tr>"""
-
-        report += f"""								</table>
-										
-										<h3>File size check</h3>
+        ######################################################
+        ###        Application check section               ###
+        if self.server.application_list and len(self.server.application_list)>0:
+            report += f"""								<h3>Application check</h3>
 										<table style="width:75%">"""
 
-        for file in self.server.files:
-            report += f"""									<tr>
-												<td align="left">{file["location"]}</td>
-												<td><span style="font-weight:bold;color:>{"green" if file["found"]>0 else "red"}">{self.humanbytes(file["found"]) if file["found"]>0 else "Not Found"}</span></td>
-												<td><span style="font-weight:bold;color:{"red" if file["alarm"] else "green"}">{"KO" if file["alarm"] else "OK"}</span></td>
-											</tr>"""
+            for app in self.server.application_list:
+                report += f"""											<tr>
+                                                    <td align="left">{app["friendly_name"]}</td>
+                                                    <td><span style="font-weight:bold;color:{"green" if app["found"] else "red"}">{"Present" if app["found"] else "Not present"}</span></td>
+                                                </tr>"""
 
-        report +="""								</table>
-									</td>
+            report += f"""										</table>"""
+        ######################################################
+		
+
+        ######################################################
+        ###         Filesystem check section               ###
+        if self.server.filesystems and len(self.server.filesystems)>0:
+            report += f"""								<h3>Filesystem status</h3>
+										<table style="width:100%">"""
+
+            for fs in self.server.filesystems:
+                report += f"""									<tr>
+                                                    <td align="left"><label>{fs["mount_location"]}</td>
+                                                    <td><span style="font-weight:bold;color:{"red" if fs["alarm"] else "green"}">{fs["found"]}%</span></label></td>
+                                                    <td align="center"><progress value="{fs["found"]}" max="100" style="width:300px;height:40px"></progress></td>
+                                                </tr>"""
+
+            report += f"""								</table>"""
+        ######################################################
+
+
+        ######################################################
+        ###           File check section                   ###
+        if self.server.files and len(self.server.files)>0:
+            report += f"""								<h3>File size check</h3>
+										<table style="width:75%">"""
+
+            for file in self.server.files:
+                report += f"""									<tr>
+                                                    <td align="left">{file["location"]}</td>
+                                                    <td><span style="font-weight:bold;color:{"green" if file["found"]>0 else "red"}">{self.humanbytes(file["found"]) if file["found"]>0 else "Not Found"}</span></td>
+                                                    <td><span style="font-weight:bold;color:{"red" if file["alarm"] else "green"}">{"KO" if file["alarm"] else "OK"}</span></td>
+                                                </tr>"""
+
+        
+            report += f"""								</table>"""
+        ######################################################
+
+
+        ######################################################
+        ###          Container check section               ###
+        if self.server.containers and len(self.server.containers)>0:
+            report += f"""								<h3>Container check</h3>
+										<table style="width:75%">"""
+
+            for container in self.server.containers:
+                report += f"""									<tr>
+                                                    <td align="left">{container["name"]}</td>
+                                                    <td><span style="font-weight:bold;color:{"green" if container["found"] else "red"}">{"Found" if container["found"] else "Not Found"}</span></td>
+                                                </tr>"""
+
+            report +="""								</table>"""
+        ######################################################
+        
+        report +="""							</td>
 								</tr>
 							</tbody>
 						</table>"""
