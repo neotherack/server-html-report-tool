@@ -5,6 +5,7 @@ import docker
 
 class Server:
     hostname = None
+    port = None
     friendly_name = None
     environment = None
     alarm = None
@@ -15,19 +16,20 @@ class Server:
     filesystems = None
     files = None
     containers = None
+    format = None
 
     def __init__(self, config):
         self.hostname = config["hostname"]
+        self.port = config["port"]
         self.friendly_name = config["friendly_name"]
         self.environment = config["environment"]
-        self.alarm = False
-        self.analysis_date = datetime.datetime.now()
         self.application_list = config["application_list"]
         self.memory = config["memory"]
         self.swap = config["swap"]
         self.filesystems = config["filesystems"]
         self.files = config["files"]
         self.containers = config["containers"]
+        self.format = "%d/%m/%Y %H:%M:%S"
 
     def __str__(self):
         return f"{self.hostname, self.friendly_name, self.environment, self.application_list, self.memory, self.swap, self.filesystems, self.files, self.containers}"
@@ -37,6 +39,16 @@ class Server:
                 "environment": self.environment, "application_list": self.application_list,
                 "memory": self.memory, "swap": self.swap, 
                 "filesystems": self.filesystems, "files": self.files, "containers": self.containers}
+
+    def check_server(self):
+        self.alarm = False
+        self.analysis_date = datetime.datetime.now().strftime(self.format)
+        self.check_memory()
+        self.check_swap()
+        self.check_applications()
+        self.check_filesystems()
+        self.check_files()
+        self.check_containers()
 
     def check_memory(self):
         try:
