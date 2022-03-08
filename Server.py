@@ -115,12 +115,11 @@ class Server:
 
     def check_application(self, processName):
         for proc in psutil.process_iter():
-            try:
-                if processName.lower() in proc.name().lower():
-                    return True
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
-        return False;
+            process = psutil.Process(proc.pid)
+            line = "".join(process.cmdline())
+            if processName in line:
+                return True
+        return False
 
     def check_filesystem(self, path):
         return psutil.disk_usage(path=path).percent

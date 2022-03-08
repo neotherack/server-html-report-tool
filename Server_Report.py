@@ -59,7 +59,7 @@ class Server_Report:
                                     <tbody>
                                         <tr>
                                             <td align="center" class="microfocus" style="height: 50px;">
-                                                <p>Server analytics by Microfocus&#174; Professional Services</p>
+                                                <p>Server analytics</p>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -171,7 +171,7 @@ class Server_Report:
                         </tr>
                         <tr>
                             <td class="microfocus" align="center">
-                                <p style="color:white; line-height: 1.5em;">Microfocus Professional Services Iberia</p>
+                                <p style="color:white; line-height: 1.5em;">Microfocus&#174; Professional Services</p>
                             </td>
                         </tr>
                     </tbody>
