@@ -130,7 +130,7 @@ class Server:
             return os.path.getsize(path)
         except FileNotFoundError:
             return -1
-        except Exception:
+        except Exception as e:
             print(f"EXCEPTION: analyzing file {path}\n{e}")
 
     def check_container(self, container_name):
