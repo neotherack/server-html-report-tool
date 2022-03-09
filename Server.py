@@ -4,32 +4,45 @@ import datetime
 import docker
 
 class Server:
-    hostname = None
-    port = None
-    friendly_name = None
-    environment = None
-    alarm = None
-    memory = None
-    swap = None
-    analysis_date = None
+    hostname         = None
+    port             = None
+    friendly_name    = None
+    environment      = None
+    alarm            = None
+    memory           = None
+    swap             = None
+    analysis_date    = None
     application_list = None
-    filesystems = None
-    files = None
-    containers = None
-    format = None
+    filesystems      = None
+    files            = None
+    containers       = None
+    format           = None
+
+    mail_from        = None
+    mail_to          = None
+    mail_host        = None
+    mail_port        = None
+
+
 
     def __init__(self, config):
-        self.hostname = config["hostname"]
-        self.port = config["port"]
-        self.friendly_name = config["friendly_name"]
-        self.environment = config["environment"]
+
+        self.hostname         = config["hostname"]
+        self.port             = config["port"]
+        self.friendly_name    = config["friendly_name"]
+        self.environment      = config["environment"]
         self.application_list = config["application_list"]
-        self.memory = config["memory"]
-        self.swap = config["swap"]
-        self.filesystems = config["filesystems"]
-        self.files = config["files"]
-        self.containers = config["containers"]
-        self.format = "%d/%m/%Y %H:%M:%S"
+        self.memory           = config["memory"]
+        self.swap             = config["swap"]
+        self.filesystems      = config["filesystems"]
+        self.files            = config["files"]
+        self.containers       = config["containers"]
+        self.format           = "%d/%m/%Y %H:%M:%S"
+        self.mail_from        = config["mail_from"]
+        self.mail_to          = config["mail_to"]
+        self.mail_host        = config["mail_host"]
+        self.mail_port        = config["mail_port"]
+
 
     def __str__(self):
         return f"{self.hostname, self.friendly_name, self.environment, self.application_list, self.memory, self.swap, self.filesystems, self.files, self.containers}"
